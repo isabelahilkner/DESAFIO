@@ -1,33 +1,38 @@
-const {
-  handleCreateTask,
-  handleGetTasks,
-  handleUpdateTask,
-  handleDeleteTask
-} = require('../controllers/taskController');
+const taskController = require('../controllers/taskController');
 
-function taskRoutes(req, res) {
-  const { method, url } = req;
+module.exports = (req, res) => {
 
-  if (url === '/tasks' && method === 'POST') {
-    return handleCreateTask(req, res);
-  }
+  const url = req.url;
+  const method = req.method;
 
+  // GET /tasks
   if (url === '/tasks' && method === 'GET') {
-    return handleGetTasks(req, res);
+    return taskController.listTasks(req, res);
+  }
+  // GET /tasks/:id
+  if (url.startsWith('/tasks/') && method === 'GET') {
+    const id = url.split('/')[2];
+    return taskController.listTasksid(req, res, id);
   }
 
+  // POST /tasks
+  if (url === '/tasks' && method === 'POST') {
+    return taskController.createTask(req, res);
+  }
+
+  // PUT /tasks/:id
   if (url.startsWith('/tasks/') && method === 'PUT') {
-    const id = parseInt(url.split('/')[2]);
-    return handleUpdateTask(req, res, id);
+    const id = url.split('/')[2];
+    return taskController.updateTask(req, res, id);
   }
 
+  // DELETE /tasks/:id
   if (url.startsWith('/tasks/') && method === 'DELETE') {
-    const id = parseInt(url.split('/')[2]);
-    return handleDeleteTask(req, res, id);
+    const id = url.split('/')[2];
+    return taskController.deleteTask(req, res, id);
   }
 
-  res.writeHead(404, { 'Content-Type': 'application/json' });
+  // Rota não encontrada
+  res.statusCode = 404;
   res.end(JSON.stringify({ message: 'Rota não encontrada' }));
-}
-
-module.exports = taskRoutes;
+};
